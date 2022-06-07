@@ -27,6 +27,16 @@ const main = async() =>{
   account = await program.account.baseAccount.fetch(baseAccount.publicKey);
   console.log("GIF Count :: ", account.totalGifs.toString())
   console.log("GIF List :: ", account.gifList)
+
+
+  console.log("Starting Tip Transection...")
+  const tipTx = await program.rpc.sendSol({
+    accounts:{
+      baseAccount: baseAccount.publicKey,
+      systemProgram: anchor.web3.SystemProgram.programId,
+    }
+  }, 2);
+  console.log("Tip Transection :: ", tipTx);
 }
 
 const runMain = async() =>{

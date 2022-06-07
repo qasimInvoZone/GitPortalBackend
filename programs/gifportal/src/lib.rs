@@ -23,6 +23,22 @@ pub mod gifportal {
         base_account.total_gifs += 1;
         Ok(())
     }
+
+    pub fn send_sol(ctx: Context<SendSol>, amount: u64) -> Result<()> {
+        let ix = anchor_lang::solana_program::system_instruction::transfer(
+            &ctx.accounts.from.key(),
+            &ctx.accounts.to.key(),
+            amount,
+        );
+        anchor_lang::solana_program::program::invoke(
+            &ix,
+            &[
+                ctx.accounts.from.to_account_info(),
+                ctx.accounts.to.to_account_info(),
+            ],
+        );
+        Ok(())
+    }
 }
 
 #[derive(Accounts)]
@@ -43,14 +59,25 @@ pub struct AddGif<'info> {
     pub user: Signer<'info>
 }
 
+#[derive(Accounts)]
+pub struct SendSol<'info> {
+    #[account(mut)]
+    pub from: Account<'info, BaseAccount>,
+    #[account(mut)]
+    pub to: Account<'info, BaseAccount>,
+    pub system_program: Program<'info, System>,
+}
+
 #[derive(Debug, Clone, AnchorSerialize, AnchorDeserialize)]
 pub struct ItemStruct {
     pub gif_link: String,
-    pub user_address: Pubkey
+    pub user_address: Pubkey,
 }
 
 #[account]
 pub struct BaseAccount {
     pub total_gifs: u64,
-    pub gif_list: Vec<ItemStruct>
+    pub gif_list: Vec<ItemStruct>,
+    pub from: Pubkey,
+    pub to: Pubkey,
 }
